@@ -1,0 +1,503 @@
+ARTs Import v1.0 — 2026-10-02
+Nguồn tham chiếu: ARTs_Tool_latest(1).7z và LI_App_v1.17-master(1).zip.
+
+[Thêm mới]
+- Project độc lập cho bước Import của ARTs mới; main.py chạy giao diện.
+- Chọn file SQLite trên ổ mạng; nút Import mở From–To rồi chọn folder cha.
+- Quét đệ quy một lần cho cả khoảng ngày, hỗ trợ folder máy có/không có folder tháng.
+- Staging và snapshot local; đọc/ghi theo lô 5.000 dòng để hạn chế RAM.
+- Chạy nền bằng QThread; tiến độ, log, hủy có kiểm soát; giữ UI phản hồi.
+- Import lại: DELETE toàn bộ ngày có staging hợp lệ rồi INSERT trong cùng transaction.
+- Rollback toàn bộ lần thay khi lỗi/hủy trước commit; giữ nguyên ngày không có dữ liệu hợp lệ.
+- Connection riêng cho tác vụ, timeout và đóng trong finally theo hướng LI.
+- Lease import liên máy 15 phút, heartbeat 30 giây, kiểm tra chủ khóa trước DELETE.
+- Bảng arts_import_status, arts_data_revision và index data(File_Date).
+- Log local xoay vòng, ghi parse skip, file/batch/row count/elapsed/commit/rollback.
+- CLI dùng cùng import service; build_windows.bat; tests và benchmark giả lập.
+
+[Giữ nguyên]
+- Tên/thứ tự/kiểu 15 cột bảng data (bao gồm ID).
+- Cách nhận diện YYYY-MM-DD*.txt và dòng FUNCTION=SLOT_END.
+- Biểu thức tách trường; File_Date, Datetime, EQP/Handler, Model, Qty/Fail.
+- Cách mở file/encoding và bỏ qua dòng lỗi của parser ARTs, thêm log để theo dõi.
+
+[Khác ARTs cũ]
+- Cho chọn khoảng ngày thay vì một ngày.
+- Không yêu cầu người dùng xóa ngày trước khi import lại.
+- Không gom toàn bộ dữ liệu các file vào một DataFrame lớn.
+- Không giữ connection database ở UI và không đọc log trên UI thread.
+- Không tự chạy Search/quét log mỗi 30 giây; đây là app Import mới.
+
+[Phạm vi]
+- Dùng database riêng cho ARTs mới; không ghi database ARTs cũ có các bảng phụ thuộc.
+- Chưa chuyển Summary/Analyze/Alarm/Monitor/Mail/Scheduler; các phần này thuộc giai đoạn sau.
+- Chưa xác nhận tốc độ hoặc hành vi khóa trên ổ mạng sản xuất; xem TEST_REPORT.md.
+
+ARTs Import v1.1 — 2026-10-02 — Patch giao diện
+
+- Cửa sổ chính chỉ giữ nút IMPORT xanh theo mẫu LI; loại chọn database, tiêu đề lớn,
+  hướng dẫn, trạng thái chi tiết, thanh tiến độ, khung log và nút Hủy khỏi cửa sổ chính.
+- Dialog ngày: Từ ngày/Đến ngày dd/MM/yyyy, Tiếp tục/Hủy; tiếp theo chọn folder cha.
+- Sau worker finished và commit thành công, hiện dialog Success; lỗi có dialog riêng.
+- Tách ImportPanel, DateRangeDialog, ImportController, logging_service và app_config.
+- Chỉ tải Qt/widget tối thiểu trước khi show; controller/dialog khi click;
+  worker khi chọn folder; pandas/sqlite/parser/logging trong worker.
+- Đường dẫn DB: ARTS_DB_PATH > app_config.DATABASE_PATH > QSettings v1.0 >
+  arts_data.db cạnh main.py/EXE. Không tự đổi đường dẫn đã chọn trước đó.
+- Giữ nguyên parser, staging, khóa liên máy và transaction DELETE/INSERT của v1.0.
+- Kiểm thử: 21 tests PASS, gồm startup không nạp module nặng, Success dialog,
+  hủy dialog không khởi động worker và giữ đường dẫn DB đã lưu.
+- Chỉ bàn giao file mới/thay đổi; chép đè lên project v1.0.
+
+ARTs Import v1.0 — 2026-10-02
+Nguồn tham chiếu: ARTs_Tool_latest(1).7z và LI_App_v1.17-master(1).zip.
+
+[Thêm mới]
+- Project độc lập cho bước Import của ARTs mới; main.py chạy giao diện.
+- Chọn file SQLite trên ổ mạng; nút Import mở From–To rồi chọn folder cha.
+- Quét đệ quy một lần cho cả khoảng ngày, hỗ trợ folder máy có/không có folder tháng.
+- Staging và snapshot local; đọc/ghi theo lô 5.000 dòng để hạn chế RAM.
+- Chạy nền bằng QThread; tiến độ, log, hủy có kiểm soát; giữ UI phản hồi.
+- Import lại: DELETE toàn bộ ngày có staging hợp lệ rồi INSERT trong cùng transaction.
+- Rollback toàn bộ lần thay khi lỗi/hủy trước commit; giữ nguyên ngày không có dữ liệu hợp lệ.
+- Connection riêng cho tác vụ, timeout và đóng trong finally theo hướng LI.
+- Lease import liên máy 15 phút, heartbeat 30 giây, kiểm tra chủ khóa trước DELETE.
+- Bảng arts_import_status, arts_data_revision và index data(File_Date).
+- Log local xoay vòng, ghi parse skip, file/batch/row count/elapsed/commit/rollback.
+- CLI dùng cùng import service; build_windows.bat; tests và benchmark giả lập.
+
+[Giữ nguyên]
+- Tên/thứ tự/kiểu 15 cột bảng data (bao gồm ID).
+- Cách nhận diện YYYY-MM-DD*.txt và dòng FUNCTION=SLOT_END.
+- Biểu thức tách trường; File_Date, Datetime, EQP/Handler, Model, Qty/Fail.
+- Cách mở file/encoding và bỏ qua dòng lỗi của parser ARTs, thêm log để theo dõi.
+
+[Khác ARTs cũ]
+- Cho chọn khoảng ngày thay vì một ngày.
+- Không yêu cầu người dùng xóa ngày trước khi import lại.
+- Không gom toàn bộ dữ liệu các file vào một DataFrame lớn.
+- Không giữ connection database ở UI và không đọc log trên UI thread.
+- Không tự chạy Search/quét log mỗi 30 giây; đây là app Import mới.
+
+[Phạm vi]
+- Dùng database riêng cho ARTs mới; không ghi database ARTs cũ có các bảng phụ thuộc.
+- Chưa chuyển Summary/Analyze/Alarm/Monitor/Mail/Scheduler; các phần này thuộc giai đoạn sau.
+- Chưa xác nhận tốc độ hoặc hành vi khóa trên ổ mạng sản xuất; xem TEST_REPORT.md.
+
+
+ARTs Import v1.2 — 2026-10-02 — Bộ lọc theo LI
+- Thêm From, To, EQP / Handler, Zone, Slot; Model và Scrap Code nằm cuối cao hai hàng.
+- Checkbox Model/Scrap với Select All; bỏ Tier; IMPORT/SEARCH theo phong cách LI.
+- Tải bộ lọc nền sau khi window hiện; lazy import SQLite/repository; không truy vấn UI thread.
+- Recursive MIN index seeks giống LI; thêm index 6 cột; Scrap tách theo ARTs.
+- Cache theo arts_data_revision, kiểm tra 60 giây và refresh ngay sau import thành công.
+- Giữ lựa chọn hợp lệ, chờ/retry khi DB bận, hủy worker khi đóng app.
+- SEARCH lưu/phát điều kiện cho các tab tương lai; chưa bổ sung bảng báo cáo.
+- Giữ nguyên parser và logic import; 24 tests PASS. Patch chỉ file mới/thay đổi so với v1.1.
+
+ARTs Import v1.1 — 2026-10-02 — Patch giao diện
+
+- Cửa sổ chính chỉ giữ nút IMPORT xanh theo mẫu LI; loại chọn database, tiêu đề lớn,
+  hướng dẫn, trạng thái chi tiết, thanh tiến độ, khung log và nút Hủy khỏi cửa sổ chính.
+- Dialog ngày: Từ ngày/Đến ngày dd/MM/yyyy, Tiếp tục/Hủy; tiếp theo chọn folder cha.
+- Sau worker finished và commit thành công, hiện dialog Success; lỗi có dialog riêng.
+- Tách ImportPanel, DateRangeDialog, ImportController, logging_service và app_config.
+- Chỉ tải Qt/widget tối thiểu trước khi show; controller/dialog khi click;
+  worker khi chọn folder; pandas/sqlite/parser/logging trong worker.
+- Đường dẫn DB: ARTS_DB_PATH > app_config.DATABASE_PATH > QSettings v1.0 >
+  arts_data.db cạnh main.py/EXE. Không tự đổi đường dẫn đã chọn trước đó.
+- Giữ nguyên parser, staging, khóa liên máy và transaction DELETE/INSERT của v1.0.
+- Kiểm thử: 21 tests PASS, gồm startup không nạp module nặng, Success dialog,
+  hủy dialog không khởi động worker và giữ đường dẫn DB đã lưu.
+- Chỉ bàn giao file mới/thay đổi; chép đè lên project v1.0.
+
+ARTs Import v1.0 — 2026-10-02
+Nguồn tham chiếu: ARTs_Tool_latest(1).7z và LI_App_v1.17-master(1).zip.
+
+[Thêm mới]
+- Project độc lập cho bước Import của ARTs mới; main.py chạy giao diện.
+- Chọn file SQLite trên ổ mạng; nút Import mở From–To rồi chọn folder cha.
+- Quét đệ quy một lần cho cả khoảng ngày, hỗ trợ folder máy có/không có folder tháng.
+- Staging và snapshot local; đọc/ghi theo lô 5.000 dòng để hạn chế RAM.
+- Chạy nền bằng QThread; tiến độ, log, hủy có kiểm soát; giữ UI phản hồi.
+- Import lại: DELETE toàn bộ ngày có staging hợp lệ rồi INSERT trong cùng transaction.
+- Rollback toàn bộ lần thay khi lỗi/hủy trước commit; giữ nguyên ngày không có dữ liệu hợp lệ.
+- Connection riêng cho tác vụ, timeout và đóng trong finally theo hướng LI.
+- Lease import liên máy 15 phút, heartbeat 30 giây, kiểm tra chủ khóa trước DELETE.
+- Bảng arts_import_status, arts_data_revision và index data(File_Date).
+- Log local xoay vòng, ghi parse skip, file/batch/row count/elapsed/commit/rollback.
+- CLI dùng cùng import service; build_windows.bat; tests và benchmark giả lập.
+
+[Giữ nguyên]
+- Tên/thứ tự/kiểu 15 cột bảng data (bao gồm ID).
+- Cách nhận diện YYYY-MM-DD*.txt và dòng FUNCTION=SLOT_END.
+- Biểu thức tách trường; File_Date, Datetime, EQP/Handler, Model, Qty/Fail.
+- Cách mở file/encoding và bỏ qua dòng lỗi của parser ARTs, thêm log để theo dõi.
+
+[Khác ARTs cũ]
+- Cho chọn khoảng ngày thay vì một ngày.
+- Không yêu cầu người dùng xóa ngày trước khi import lại.
+- Không gom toàn bộ dữ liệu các file vào một DataFrame lớn.
+- Không giữ connection database ở UI và không đọc log trên UI thread.
+- Không tự chạy Search/quét log mỗi 30 giây; đây là app Import mới.
+
+[Phạm vi]
+- Dùng database riêng cho ARTs mới; không ghi database ARTs cũ có các bảng phụ thuộc.
+- Chưa chuyển Summary/Analyze/Alarm/Monitor/Mail/Scheduler; các phần này thuộc giai đoạn sau.
+- Chưa xác nhận tốc độ hoặc hành vi khóa trên ổ mạng sản xuất; xem TEST_REPORT.md.
+2026-10-02 — Summary yield theo máy
+Thêm tab Summary và tiêu đề Yield ARTs machine on summary.
+Nối SEARCH với controller/worker/repository độc lập, connection riêng, chờ database bận và hỗ trợ hủy.
+Thêm thống kê Qty, Out, Fail, PPM, Yield theo EQP và Total có trọng số.
+Thêm hai covering index tự nâng cấp cho database app mới.
+Thêm bảng model/view, copy ô được chọn bằng Ctrl+C/menu chuột phải.
+Kế thừa phong cách biểu đồ và hover của LI; sửa trạng thái Qty=0, không dữ liệu, hỗ trợ nhiều máy bằng thanh cuộn.
+Thêm hiệu ứng Please Wait của LI, khóa thao tác Search/Import trong khi Search, đóng worker an toàn.
+Xóa kết quả Summary sau import để tránh hiển thị số liệu cũ.
+Bổ sung matplotlib và 5 kiểm tra tích hợp/nghiệp vụ cho Summary.
+
+
+ARTs Summary Daily — 2026-10-02
+[Thêm mới]
+- Bảng Yield ARTs Daily theo EQP/ngày ở dưới khối Summary theo máy.
+- Cột Date/In/Pass/Fail/Fail PPM/Yield và PPM từng mã phát sinh.
+- Giữ quy tắc đếm từng mục SCRAP của ARTs cũ; mẫu số là toàn bộ In theo ngày, không lọc bởi Scrap Code.
+- Tiêu đề là hàng có thể bôi chọn; Ctrl+C chỉ lấy chính xác ô đã chọn.
+- Biểu đồ cột chồng mã được chọn + đường Yield theo LI, tooltip từng đoạn cột.
+- Mã không phát sinh không có legend; ngày không có In không tạo Yield 0% giả.
+[Tích hợp/tối ưu]
+- Cùng SummaryWorker, connection và snapshot với bảng theo máy; giữ loading/hủy/thử lại khi bận.
+- Tái sử dụng covering index; SQL nhóm chuỗi SCRAP trước khi đếm, không tải toàn bộ log.
+- Bảng model/view; giới hạn kích thước widget bằng cuộn; chỉ tạo đoạn cột có giá trị.
+- Xóa trạng thái Daily khi bỏ EQP, không có mã, import cập nhật hoặc Search lỗi.
+[Kiểm tra]
+- 11 kiểm tra Summary/Daily/UI đạt; đã kiểm tra ảnh render.
+
+ARTs Import v1.0 — 2026-10-02
+Nguồn tham chiếu: ARTs_Tool_latest(1).7z và LI_App_v1.17-master(1).zip.
+
+[Thêm mới]
+- Project độc lập cho bước Import của ARTs mới; main.py chạy giao diện.
+- Chọn file SQLite trên ổ mạng; nút Import mở From–To rồi chọn folder cha.
+- Quét đệ quy một lần cho cả khoảng ngày, hỗ trợ folder máy có/không có folder tháng.
+- Staging và snapshot local; đọc/ghi theo lô 5.000 dòng để hạn chế RAM.
+- Chạy nền bằng QThread; tiến độ, log, hủy có kiểm soát; giữ UI phản hồi.
+- Import lại: DELETE toàn bộ ngày có staging hợp lệ rồi INSERT trong cùng transaction.
+- Rollback toàn bộ lần thay khi lỗi/hủy trước commit; giữ nguyên ngày không có dữ liệu hợp lệ.
+- Connection riêng cho tác vụ, timeout và đóng trong finally theo hướng LI.
+- Lease import liên máy 15 phút, heartbeat 30 giây, kiểm tra chủ khóa trước DELETE.
+- Bảng arts_import_status, arts_data_revision và index data(File_Date).
+- Log local xoay vòng, ghi parse skip, file/batch/row count/elapsed/commit/rollback.
+- CLI dùng cùng import service; build_windows.bat; tests và benchmark giả lập.
+
+[Giữ nguyên]
+- Tên/thứ tự/kiểu 15 cột bảng data (bao gồm ID).
+- Cách nhận diện YYYY-MM-DD*.txt và dòng FUNCTION=SLOT_END.
+- Biểu thức tách trường; File_Date, Datetime, EQP/Handler, Model, Qty/Fail.
+- Cách mở file/encoding và bỏ qua dòng lỗi của parser ARTs, thêm log để theo dõi.
+
+[Khác ARTs cũ]
+- Cho chọn khoảng ngày thay vì một ngày.
+- Không yêu cầu người dùng xóa ngày trước khi import lại.
+- Không gom toàn bộ dữ liệu các file vào một DataFrame lớn.
+- Không giữ connection database ở UI và không đọc log trên UI thread.
+- Không tự chạy Search/quét log mỗi 30 giây; đây là app Import mới.
+
+[Phạm vi]
+- Dùng database riêng cho ARTs mới; không ghi database ARTs cũ có các bảng phụ thuộc.
+- Chưa chuyển Summary/Analyze/Alarm/Monitor/Mail/Scheduler; các phần này thuộc giai đoạn sau.
+- Chưa xác nhận tốc độ hoặc hành vi khóa trên ổ mạng sản xuất; xem TEST_REPORT.md.
+
+ARTs Import v1.1 — 2026-10-02 — Patch giao diện
+
+- Cửa sổ chính chỉ giữ nút IMPORT xanh theo mẫu LI; loại chọn database, tiêu đề lớn,
+  hướng dẫn, trạng thái chi tiết, thanh tiến độ, khung log và nút Hủy khỏi cửa sổ chính.
+- Dialog ngày: Từ ngày/Đến ngày dd/MM/yyyy, Tiếp tục/Hủy; tiếp theo chọn folder cha.
+- Sau worker finished và commit thành công, hiện dialog Success; lỗi có dialog riêng.
+- Tách ImportPanel, DateRangeDialog, ImportController, logging_service và app_config.
+- Chỉ tải Qt/widget tối thiểu trước khi show; controller/dialog khi click;
+  worker khi chọn folder; pandas/sqlite/parser/logging trong worker.
+- Đường dẫn DB: ARTS_DB_PATH > app_config.DATABASE_PATH > QSettings v1.0 >
+  arts_data.db cạnh main.py/EXE. Không tự đổi đường dẫn đã chọn trước đó.
+- Giữ nguyên parser, staging, khóa liên máy và transaction DELETE/INSERT của v1.0.
+- Kiểm thử: 21 tests PASS, gồm startup không nạp module nặng, Success dialog,
+  hủy dialog không khởi động worker và giữ đường dẫn DB đã lưu.
+- Chỉ bàn giao file mới/thay đổi; chép đè lên project v1.0.
+
+ARTs Import v1.0 — 2026-10-02
+Nguồn tham chiếu: ARTs_Tool_latest(1).7z và LI_App_v1.17-master(1).zip.
+
+[Thêm mới]
+- Project độc lập cho bước Import của ARTs mới; main.py chạy giao diện.
+- Chọn file SQLite trên ổ mạng; nút Import mở From–To rồi chọn folder cha.
+- Quét đệ quy một lần cho cả khoảng ngày, hỗ trợ folder máy có/không có folder tháng.
+- Staging và snapshot local; đọc/ghi theo lô 5.000 dòng để hạn chế RAM.
+- Chạy nền bằng QThread; tiến độ, log, hủy có kiểm soát; giữ UI phản hồi.
+- Import lại: DELETE toàn bộ ngày có staging hợp lệ rồi INSERT trong cùng transaction.
+- Rollback toàn bộ lần thay khi lỗi/hủy trước commit; giữ nguyên ngày không có dữ liệu hợp lệ.
+- Connection riêng cho tác vụ, timeout và đóng trong finally theo hướng LI.
+- Lease import liên máy 15 phút, heartbeat 30 giây, kiểm tra chủ khóa trước DELETE.
+- Bảng arts_import_status, arts_data_revision và index data(File_Date).
+- Log local xoay vòng, ghi parse skip, file/batch/row count/elapsed/commit/rollback.
+- CLI dùng cùng import service; build_windows.bat; tests và benchmark giả lập.
+
+[Giữ nguyên]
+- Tên/thứ tự/kiểu 15 cột bảng data (bao gồm ID).
+- Cách nhận diện YYYY-MM-DD*.txt và dòng FUNCTION=SLOT_END.
+- Biểu thức tách trường; File_Date, Datetime, EQP/Handler, Model, Qty/Fail.
+- Cách mở file/encoding và bỏ qua dòng lỗi của parser ARTs, thêm log để theo dõi.
+
+[Khác ARTs cũ]
+- Cho chọn khoảng ngày thay vì một ngày.
+- Không yêu cầu người dùng xóa ngày trước khi import lại.
+- Không gom toàn bộ dữ liệu các file vào một DataFrame lớn.
+- Không giữ connection database ở UI và không đọc log trên UI thread.
+- Không tự chạy Search/quét log mỗi 30 giây; đây là app Import mới.
+
+[Phạm vi]
+- Dùng database riêng cho ARTs mới; không ghi database ARTs cũ có các bảng phụ thuộc.
+- Chưa chuyển Summary/Analyze/Alarm/Monitor/Mail/Scheduler; các phần này thuộc giai đoạn sau.
+- Chưa xác nhận tốc độ hoặc hành vi khóa trên ổ mạng sản xuất; xem TEST_REPORT.md.
+
+
+ARTs Import v1.2 — 2026-10-02 — Bộ lọc theo LI
+- Thêm From, To, EQP / Handler, Zone, Slot; Model và Scrap Code nằm cuối cao hai hàng.
+- Checkbox Model/Scrap với Select All; bỏ Tier; IMPORT/SEARCH theo phong cách LI.
+- Tải bộ lọc nền sau khi window hiện; lazy import SQLite/repository; không truy vấn UI thread.
+- Recursive MIN index seeks giống LI; thêm index 6 cột; Scrap tách theo ARTs.
+- Cache theo arts_data_revision, kiểm tra 60 giây và refresh ngay sau import thành công.
+- Giữ lựa chọn hợp lệ, chờ/retry khi DB bận, hủy worker khi đóng app.
+- SEARCH lưu/phát điều kiện cho các tab tương lai; chưa bổ sung bảng báo cáo.
+- Giữ nguyên parser và logic import; 24 tests PASS. Patch chỉ file mới/thay đổi so với v1.1.
+
+ARTs Import v1.1 — 2026-10-02 — Patch giao diện
+
+- Cửa sổ chính chỉ giữ nút IMPORT xanh theo mẫu LI; loại chọn database, tiêu đề lớn,
+  hướng dẫn, trạng thái chi tiết, thanh tiến độ, khung log và nút Hủy khỏi cửa sổ chính.
+- Dialog ngày: Từ ngày/Đến ngày dd/MM/yyyy, Tiếp tục/Hủy; tiếp theo chọn folder cha.
+- Sau worker finished và commit thành công, hiện dialog Success; lỗi có dialog riêng.
+- Tách ImportPanel, DateRangeDialog, ImportController, logging_service và app_config.
+- Chỉ tải Qt/widget tối thiểu trước khi show; controller/dialog khi click;
+  worker khi chọn folder; pandas/sqlite/parser/logging trong worker.
+- Đường dẫn DB: ARTS_DB_PATH > app_config.DATABASE_PATH > QSettings v1.0 >
+  arts_data.db cạnh main.py/EXE. Không tự đổi đường dẫn đã chọn trước đó.
+- Giữ nguyên parser, staging, khóa liên máy và transaction DELETE/INSERT của v1.0.
+- Kiểm thử: 21 tests PASS, gồm startup không nạp module nặng, Success dialog,
+  hủy dialog không khởi động worker và giữ đường dẫn DB đã lưu.
+- Chỉ bàn giao file mới/thay đổi; chép đè lên project v1.0.
+
+ARTs Import v1.0 — 2026-10-02
+Nguồn tham chiếu: ARTs_Tool_latest(1).7z và LI_App_v1.17-master(1).zip.
+
+[Thêm mới]
+- Project độc lập cho bước Import của ARTs mới; main.py chạy giao diện.
+- Chọn file SQLite trên ổ mạng; nút Import mở From–To rồi chọn folder cha.
+- Quét đệ quy một lần cho cả khoảng ngày, hỗ trợ folder máy có/không có folder tháng.
+- Staging và snapshot local; đọc/ghi theo lô 5.000 dòng để hạn chế RAM.
+- Chạy nền bằng QThread; tiến độ, log, hủy có kiểm soát; giữ UI phản hồi.
+- Import lại: DELETE toàn bộ ngày có staging hợp lệ rồi INSERT trong cùng transaction.
+- Rollback toàn bộ lần thay khi lỗi/hủy trước commit; giữ nguyên ngày không có dữ liệu hợp lệ.
+- Connection riêng cho tác vụ, timeout và đóng trong finally theo hướng LI.
+- Lease import liên máy 15 phút, heartbeat 30 giây, kiểm tra chủ khóa trước DELETE.
+- Bảng arts_import_status, arts_data_revision và index data(File_Date).
+- Log local xoay vòng, ghi parse skip, file/batch/row count/elapsed/commit/rollback.
+- CLI dùng cùng import service; build_windows.bat; tests và benchmark giả lập.
+
+[Giữ nguyên]
+- Tên/thứ tự/kiểu 15 cột bảng data (bao gồm ID).
+- Cách nhận diện YYYY-MM-DD*.txt và dòng FUNCTION=SLOT_END.
+- Biểu thức tách trường; File_Date, Datetime, EQP/Handler, Model, Qty/Fail.
+- Cách mở file/encoding và bỏ qua dòng lỗi của parser ARTs, thêm log để theo dõi.
+
+[Khác ARTs cũ]
+- Cho chọn khoảng ngày thay vì một ngày.
+- Không yêu cầu người dùng xóa ngày trước khi import lại.
+- Không gom toàn bộ dữ liệu các file vào một DataFrame lớn.
+- Không giữ connection database ở UI và không đọc log trên UI thread.
+- Không tự chạy Search/quét log mỗi 30 giây; đây là app Import mới.
+
+[Phạm vi]
+- Dùng database riêng cho ARTs mới; không ghi database ARTs cũ có các bảng phụ thuộc.
+- Chưa chuyển Summary/Analyze/Alarm/Monitor/Mail/Scheduler; các phần này thuộc giai đoạn sau.
+- Chưa xác nhận tốc độ hoặc hành vi khóa trên ổ mạng sản xuất; xem TEST_REPORT.md.
+
+
+ARTs Handler Daily — 2026-10-02
+[Thêm mới]
+- Bảng/biểu đồ Yield ARTs by Handler dưới Daily máy; tiêu đề gồm EQP và Handler.
+- Đọc riêng Handler được chọn; copy ô dữ liệu/tiêu đề đúng vùng bôi chọn.
+- Tooltip đoạn cột bổ sung Handler; chỉ vẽ mã chọn có dữ liệu và không tạo legend rỗng.
+[Sửa chung]
+- Daily theo máy tổng hợp tất cả Handler; Daily mới tách Handler đã chọn.
+- Ngày thiếu In vẽ Yield xuống 0%, trong bảng Fail PPM/Yield để trống.
+- Khung bảng vừa tổng chiều rộng cột Scrap Code cuối; chiều cao vừa số dòng, tối đa 560 px.
+[Tối ưu]
+- Tổng hợp cả Daily máy và Handler từ một lượt SQL GROUP BY; tái sử dụng covering index/snapshot/worker.
+- Không thay công thức đếm mã lỗi, không cần import lại database.
+[Kiểm tra]
+- 12 kiểm tra Summary/Daily/UI đạt; đã kiểm tra ảnh render Handler.
+
+ARTs Summary Daily — 2026-10-02
+[Thêm mới]
+- Bảng Yield ARTs Daily theo EQP/ngày ở dưới khối Summary theo máy.
+- Cột Date/In/Pass/Fail/Fail PPM/Yield và PPM từng mã phát sinh.
+- Giữ quy tắc đếm từng mục SCRAP của ARTs cũ; mẫu số là toàn bộ In theo ngày, không lọc bởi Scrap Code.
+- Tiêu đề là hàng có thể bôi chọn; Ctrl+C chỉ lấy chính xác ô đã chọn.
+- Biểu đồ cột chồng mã được chọn + đường Yield theo LI, tooltip từng đoạn cột.
+- Mã không phát sinh không có legend; ngày không có In không tạo Yield 0% giả.
+[Tích hợp/tối ưu]
+- Cùng SummaryWorker, connection và snapshot với bảng theo máy; giữ loading/hủy/thử lại khi bận.
+- Tái sử dụng covering index; SQL nhóm chuỗi SCRAP trước khi đếm, không tải toàn bộ log.
+- Bảng model/view; giới hạn kích thước widget bằng cuộn; chỉ tạo đoạn cột có giá trị.
+- Xóa trạng thái Daily khi bỏ EQP, không có mã, import cập nhật hoặc Search lỗi.
+[Kiểm tra]
+- 11 kiểm tra Summary/Daily/UI đạt; đã kiểm tra ảnh render.
+
+ARTs Import v1.0 — 2026-10-02
+Nguồn tham chiếu: ARTs_Tool_latest(1).7z và LI_App_v1.17-master(1).zip.
+
+[Thêm mới]
+- Project độc lập cho bước Import của ARTs mới; main.py chạy giao diện.
+- Chọn file SQLite trên ổ mạng; nút Import mở From–To rồi chọn folder cha.
+- Quét đệ quy một lần cho cả khoảng ngày, hỗ trợ folder máy có/không có folder tháng.
+- Staging và snapshot local; đọc/ghi theo lô 5.000 dòng để hạn chế RAM.
+- Chạy nền bằng QThread; tiến độ, log, hủy có kiểm soát; giữ UI phản hồi.
+- Import lại: DELETE toàn bộ ngày có staging hợp lệ rồi INSERT trong cùng transaction.
+- Rollback toàn bộ lần thay khi lỗi/hủy trước commit; giữ nguyên ngày không có dữ liệu hợp lệ.
+- Connection riêng cho tác vụ, timeout và đóng trong finally theo hướng LI.
+- Lease import liên máy 15 phút, heartbeat 30 giây, kiểm tra chủ khóa trước DELETE.
+- Bảng arts_import_status, arts_data_revision và index data(File_Date).
+- Log local xoay vòng, ghi parse skip, file/batch/row count/elapsed/commit/rollback.
+- CLI dùng cùng import service; build_windows.bat; tests và benchmark giả lập.
+
+[Giữ nguyên]
+- Tên/thứ tự/kiểu 15 cột bảng data (bao gồm ID).
+- Cách nhận diện YYYY-MM-DD*.txt và dòng FUNCTION=SLOT_END.
+- Biểu thức tách trường; File_Date, Datetime, EQP/Handler, Model, Qty/Fail.
+- Cách mở file/encoding và bỏ qua dòng lỗi của parser ARTs, thêm log để theo dõi.
+
+[Khác ARTs cũ]
+- Cho chọn khoảng ngày thay vì một ngày.
+- Không yêu cầu người dùng xóa ngày trước khi import lại.
+- Không gom toàn bộ dữ liệu các file vào một DataFrame lớn.
+- Không giữ connection database ở UI và không đọc log trên UI thread.
+- Không tự chạy Search/quét log mỗi 30 giây; đây là app Import mới.
+
+[Phạm vi]
+- Dùng database riêng cho ARTs mới; không ghi database ARTs cũ có các bảng phụ thuộc.
+- Chưa chuyển Summary/Analyze/Alarm/Monitor/Mail/Scheduler; các phần này thuộc giai đoạn sau.
+- Chưa xác nhận tốc độ hoặc hành vi khóa trên ổ mạng sản xuất; xem TEST_REPORT.md.
+
+ARTs Import v1.1 — 2026-10-02 — Patch giao diện
+
+- Cửa sổ chính chỉ giữ nút IMPORT xanh theo mẫu LI; loại chọn database, tiêu đề lớn,
+  hướng dẫn, trạng thái chi tiết, thanh tiến độ, khung log và nút Hủy khỏi cửa sổ chính.
+- Dialog ngày: Từ ngày/Đến ngày dd/MM/yyyy, Tiếp tục/Hủy; tiếp theo chọn folder cha.
+- Sau worker finished và commit thành công, hiện dialog Success; lỗi có dialog riêng.
+- Tách ImportPanel, DateRangeDialog, ImportController, logging_service và app_config.
+- Chỉ tải Qt/widget tối thiểu trước khi show; controller/dialog khi click;
+  worker khi chọn folder; pandas/sqlite/parser/logging trong worker.
+- Đường dẫn DB: ARTS_DB_PATH > app_config.DATABASE_PATH > QSettings v1.0 >
+  arts_data.db cạnh main.py/EXE. Không tự đổi đường dẫn đã chọn trước đó.
+- Giữ nguyên parser, staging, khóa liên máy và transaction DELETE/INSERT của v1.0.
+- Kiểm thử: 21 tests PASS, gồm startup không nạp module nặng, Success dialog,
+  hủy dialog không khởi động worker và giữ đường dẫn DB đã lưu.
+- Chỉ bàn giao file mới/thay đổi; chép đè lên project v1.0.
+
+ARTs Import v1.0 — 2026-10-02
+Nguồn tham chiếu: ARTs_Tool_latest(1).7z và LI_App_v1.17-master(1).zip.
+
+[Thêm mới]
+- Project độc lập cho bước Import của ARTs mới; main.py chạy giao diện.
+- Chọn file SQLite trên ổ mạng; nút Import mở From–To rồi chọn folder cha.
+- Quét đệ quy một lần cho cả khoảng ngày, hỗ trợ folder máy có/không có folder tháng.
+- Staging và snapshot local; đọc/ghi theo lô 5.000 dòng để hạn chế RAM.
+- Chạy nền bằng QThread; tiến độ, log, hủy có kiểm soát; giữ UI phản hồi.
+- Import lại: DELETE toàn bộ ngày có staging hợp lệ rồi INSERT trong cùng transaction.
+- Rollback toàn bộ lần thay khi lỗi/hủy trước commit; giữ nguyên ngày không có dữ liệu hợp lệ.
+- Connection riêng cho tác vụ, timeout và đóng trong finally theo hướng LI.
+- Lease import liên máy 15 phút, heartbeat 30 giây, kiểm tra chủ khóa trước DELETE.
+- Bảng arts_import_status, arts_data_revision và index data(File_Date).
+- Log local xoay vòng, ghi parse skip, file/batch/row count/elapsed/commit/rollback.
+- CLI dùng cùng import service; build_windows.bat; tests và benchmark giả lập.
+
+[Giữ nguyên]
+- Tên/thứ tự/kiểu 15 cột bảng data (bao gồm ID).
+- Cách nhận diện YYYY-MM-DD*.txt và dòng FUNCTION=SLOT_END.
+- Biểu thức tách trường; File_Date, Datetime, EQP/Handler, Model, Qty/Fail.
+- Cách mở file/encoding và bỏ qua dòng lỗi của parser ARTs, thêm log để theo dõi.
+
+[Khác ARTs cũ]
+- Cho chọn khoảng ngày thay vì một ngày.
+- Không yêu cầu người dùng xóa ngày trước khi import lại.
+- Không gom toàn bộ dữ liệu các file vào một DataFrame lớn.
+- Không giữ connection database ở UI và không đọc log trên UI thread.
+- Không tự chạy Search/quét log mỗi 30 giây; đây là app Import mới.
+
+[Phạm vi]
+- Dùng database riêng cho ARTs mới; không ghi database ARTs cũ có các bảng phụ thuộc.
+- Chưa chuyển Summary/Analyze/Alarm/Monitor/Mail/Scheduler; các phần này thuộc giai đoạn sau.
+- Chưa xác nhận tốc độ hoặc hành vi khóa trên ổ mạng sản xuất; xem TEST_REPORT.md.
+
+
+ARTs Import v1.2 — 2026-10-02 — Bộ lọc theo LI
+- Thêm From, To, EQP / Handler, Zone, Slot; Model và Scrap Code nằm cuối cao hai hàng.
+- Checkbox Model/Scrap với Select All; bỏ Tier; IMPORT/SEARCH theo phong cách LI.
+- Tải bộ lọc nền sau khi window hiện; lazy import SQLite/repository; không truy vấn UI thread.
+- Recursive MIN index seeks giống LI; thêm index 6 cột; Scrap tách theo ARTs.
+- Cache theo arts_data_revision, kiểm tra 60 giây và refresh ngay sau import thành công.
+- Giữ lựa chọn hợp lệ, chờ/retry khi DB bận, hủy worker khi đóng app.
+- SEARCH lưu/phát điều kiện cho các tab tương lai; chưa bổ sung bảng báo cáo.
+- Giữ nguyên parser và logic import; 24 tests PASS. Patch chỉ file mới/thay đổi so với v1.1.
+
+ARTs Import v1.1 — 2026-10-02 — Patch giao diện
+
+- Cửa sổ chính chỉ giữ nút IMPORT xanh theo mẫu LI; loại chọn database, tiêu đề lớn,
+  hướng dẫn, trạng thái chi tiết, thanh tiến độ, khung log và nút Hủy khỏi cửa sổ chính.
+- Dialog ngày: Từ ngày/Đến ngày dd/MM/yyyy, Tiếp tục/Hủy; tiếp theo chọn folder cha.
+- Sau worker finished và commit thành công, hiện dialog Success; lỗi có dialog riêng.
+- Tách ImportPanel, DateRangeDialog, ImportController, logging_service và app_config.
+- Chỉ tải Qt/widget tối thiểu trước khi show; controller/dialog khi click;
+  worker khi chọn folder; pandas/sqlite/parser/logging trong worker.
+- Đường dẫn DB: ARTS_DB_PATH > app_config.DATABASE_PATH > QSettings v1.0 >
+  arts_data.db cạnh main.py/EXE. Không tự đổi đường dẫn đã chọn trước đó.
+- Giữ nguyên parser, staging, khóa liên máy và transaction DELETE/INSERT của v1.0.
+- Kiểm thử: 21 tests PASS, gồm startup không nạp module nặng, Success dialog,
+  hủy dialog không khởi động worker và giữ đường dẫn DB đã lưu.
+- Chỉ bàn giao file mới/thay đổi; chép đè lên project v1.0.
+
+ARTs Import v1.0 — 2026-10-02
+Nguồn tham chiếu: ARTs_Tool_latest(1).7z và LI_App_v1.17-master(1).zip.
+
+[Thêm mới]
+- Project độc lập cho bước Import của ARTs mới; main.py chạy giao diện.
+- Chọn file SQLite trên ổ mạng; nút Import mở From–To rồi chọn folder cha.
+- Quét đệ quy một lần cho cả khoảng ngày, hỗ trợ folder máy có/không có folder tháng.
+- Staging và snapshot local; đọc/ghi theo lô 5.000 dòng để hạn chế RAM.
+- Chạy nền bằng QThread; tiến độ, log, hủy có kiểm soát; giữ UI phản hồi.
+- Import lại: DELETE toàn bộ ngày có staging hợp lệ rồi INSERT trong cùng transaction.
+- Rollback toàn bộ lần thay khi lỗi/hủy trước commit; giữ nguyên ngày không có dữ liệu hợp lệ.
+- Connection riêng cho tác vụ, timeout và đóng trong finally theo hướng LI.
+- Lease import liên máy 15 phút, heartbeat 30 giây, kiểm tra chủ khóa trước DELETE.
+- Bảng arts_import_status, arts_data_revision và index data(File_Date).
+- Log local xoay vòng, ghi parse skip, file/batch/row count/elapsed/commit/rollback.
+- CLI dùng cùng import service; build_windows.bat; tests và benchmark giả lập.
+
+[Giữ nguyên]
+- Tên/thứ tự/kiểu 15 cột bảng data (bao gồm ID).
+- Cách nhận diện YYYY-MM-DD*.txt và dòng FUNCTION=SLOT_END.
+- Biểu thức tách trường; File_Date, Datetime, EQP/Handler, Model, Qty/Fail.
+- Cách mở file/encoding và bỏ qua dòng lỗi của parser ARTs, thêm log để theo dõi.
+
+[Khác ARTs cũ]
+- Cho chọn khoảng ngày thay vì một ngày.
+- Không yêu cầu người dùng xóa ngày trước khi import lại.
+- Không gom toàn bộ dữ liệu các file vào một DataFrame lớn.
+- Không giữ connection database ở UI và không đọc log trên UI thread.
+- Không tự chạy Search/quét log mỗi 30 giây; đây là app Import mới.
+
+[Phạm vi]
+- Dùng database riêng cho ARTs mới; không ghi database ARTs cũ có các bảng phụ thuộc.
+- Chưa chuyển Summary/Analyze/Alarm/Monitor/Mail/Scheduler; các phần này thuộc giai đoạn sau.
+- Chưa xác nhận tốc độ hoặc hành vi khóa trên ổ mạng sản xuất; xem TEST_REPORT.md.
+
